@@ -26,7 +26,7 @@ public class ResponseMessage {
                         .message("")
                         .build()
                 )
-                .body(null)
+                .body(data)
                 .build();
     }
     public static ResponseMessage success(){

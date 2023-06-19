@@ -1,18 +1,14 @@
 package com.example.tablereservation.user.controller;
 
-import com.example.tablereservation.user.model.PartnerAddInput;
-import com.example.tablereservation.user.model.ResponseError;
-import com.example.tablereservation.user.model.ResponseMessage;
-import com.example.tablereservation.user.model.ServiceResult;
+import com.example.tablereservation.user.exception.PartnerNotFoundException;
+import com.example.tablereservation.user.model.*;
 import com.example.tablereservation.user.service.PartnerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -24,7 +20,7 @@ public class PartnerController {
     private final PartnerService partnerService;
 
     /**
-     * 파트너(점주) 추가
+     * 파트너(점주) 추가 - create
      */
     @PostMapping("/api/partner")
     public ResponseEntity<?> addPartner(@RequestBody @Valid PartnerAddInput partnerAddInput, Errors errors){
@@ -42,6 +38,22 @@ public class PartnerController {
         }
         return ResponseEntity.ok().body(ResponseMessage.success());
 
+    }
+
+    /**
+     * 파트너(점주) 조회 - read
+     */
+    @GetMapping("/api/partner/{id}")
+    public ResponseEntity<?> getPartner(@PathVariable Long id){
+        // 서비스 호출 - id에 해당하는 파트너가 존재하지 않으면 예외 발생
+        PartnerResponse partner = partnerService.getPartner(id);
+
+        return ResponseEntity.ok().body(ResponseMessage.success(partner));
+
+    }
+    @ExceptionHandler(PartnerNotFoundException.class)
+    public ResponseEntity<?> partnerNotFoundExceptionHandler(PartnerNotFoundException e){
+        return ResponseEntity.ok().body(ResponseMessage.fail(e.getMessage()));
     }
 
 }
