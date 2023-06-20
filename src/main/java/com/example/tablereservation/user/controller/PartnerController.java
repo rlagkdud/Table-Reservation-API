@@ -56,4 +56,26 @@ public class PartnerController {
         return ResponseEntity.ok().body(ResponseMessage.fail(e.getMessage()));
     }
 
+    /**
+     * 파트너(점주) 수정 - update
+     */
+    @PutMapping("/api/partner/{id}")
+    public ResponseEntity<?> updatePartner(@PathVariable Long id, @RequestBody @Valid PartnerUpdateInput partnerUpdateInput, Errors errors){
+
+        // 입력값 유효성 검사
+        if(errors.hasErrors()){
+            List<ResponseError> responseErrorList = ResponseError.of(errors.getAllErrors());
+            return new ResponseEntity(ResponseMessage.fail("입력값이 정확하지 않습니다", responseErrorList), HttpStatus.BAD_REQUEST);
+        }
+
+        // 서비스 호출
+        ServiceResult result = partnerService.updatePartner(id, partnerUpdateInput);
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+        }
+
+        return ResponseEntity.ok().body(ResponseMessage.success());
+
+    }
+
 }

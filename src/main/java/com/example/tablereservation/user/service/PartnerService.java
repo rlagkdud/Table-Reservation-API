@@ -4,6 +4,7 @@ import com.example.tablereservation.user.entity.Partner;
 import com.example.tablereservation.user.exception.PartnerNotFoundException;
 import com.example.tablereservation.user.model.PartnerAddInput;
 import com.example.tablereservation.user.model.PartnerResponse;
+import com.example.tablereservation.user.model.PartnerUpdateInput;
 import com.example.tablereservation.user.model.ServiceResult;
 import com.example.tablereservation.user.repository.PartnerRepository;
 import lombok.RequiredArgsConstructor;
@@ -77,4 +78,19 @@ public class PartnerService {
 
     }
 
+    public ServiceResult updatePartner(Long id, PartnerUpdateInput partnerUpdateInput) {
+        // id에 해당하는 파트너 없을때,
+        Optional<Partner> optionalPartner = partnerRepository.findById(id);
+        if(!optionalPartner.isPresent()){
+            return ServiceResult.fail("등록된 점주가 없습니다.");
+        }
+
+        // 있을때
+        Partner partner = optionalPartner.get();
+
+        partner.setUserName(partnerUpdateInput.getUserName());
+        partner.setPhone(partnerUpdateInput.getPhone());
+        partnerRepository.save(partner);
+        return ServiceResult.success();
+    }
 }
