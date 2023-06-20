@@ -78,4 +78,19 @@ public class PartnerController {
 
     }
 
+    /**
+     * 파트너(점주) 삭제 - delete
+     */
+    @DeleteMapping("/api/partner/{id}")
+    public ResponseEntity<?> deletePartner(@PathVariable Long id){
+        ServiceResult result = partnerService.deletePartner(id);
+
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+        }
+
+        return ResponseEntity.ok().body(ResponseMessage.success());
+
+    }
+
 }

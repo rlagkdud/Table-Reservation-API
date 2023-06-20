@@ -1,5 +1,6 @@
 package com.example.tablereservation.user.service;
 
+import com.example.tablereservation.shop.repository.ShopRepository;
 import com.example.tablereservation.user.entity.Partner;
 import com.example.tablereservation.user.exception.PartnerNotFoundException;
 import com.example.tablereservation.user.model.PartnerAddInput;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.servlet.http.Part;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -22,6 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PartnerService {
     private final PartnerRepository partnerRepository;
+    private final ShopRepository shopRepository;
 
 
     /**
@@ -78,6 +81,13 @@ public class PartnerService {
 
     }
 
+    /**
+     * 점주 수정 - 이름, 번호만
+     *
+     * @param id
+     * @param partnerUpdateInput
+     * @return
+     */
     public ServiceResult updatePartner(Long id, PartnerUpdateInput partnerUpdateInput) {
         // id에 해당하는 파트너 없을때,
         Optional<Partner> optionalPartner = partnerRepository.findById(id);
@@ -92,5 +102,32 @@ public class PartnerService {
         partner.setPhone(partnerUpdateInput.getPhone());
         partnerRepository.save(partner);
         return ServiceResult.success();
+    }
+
+
+    /**
+     * 점주 삭제 - 가게가 있으면 삭제 불가
+     * @param id
+     * @return
+     */
+    public ServiceResult deletePartner(Long id) {
+        // 점주 존재 여부
+        Optional<Partner> optionalPartner = partnerRepository.findById(id);
+        if(!optionalPartner.isPresent()){
+            return ServiceResult.fail("등록된 점주가 없습니다.");
+        }
+
+        Partner partner = optionalPartner.get();
+
+        // 가게 존재 여부
+        int count = shopRepository.countByPartner(partner);
+        if(count > 0){
+            return ServiceResult.fail("해당 점주로 등록된 매장이 존재합니다.");
+        }
+
+        partnerRepository.delete(partner);
+        return ServiceResult.success();
+
+
     }
 }
