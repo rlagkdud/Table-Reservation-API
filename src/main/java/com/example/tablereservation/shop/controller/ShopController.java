@@ -10,9 +10,7 @@ import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -41,5 +39,18 @@ public class ShopController {
             return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
         }
         return ResponseEntity.ok().body(ResponseMessage.success());
+    }
+
+    /**
+     * 매장 상세 정보 - read
+     */
+    @GetMapping("/api/shop/{id}")
+    public ResponseEntity<?> getShop(@PathVariable Long id){
+        ServiceResult result = shopService.getShop(id);
+
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+        }
+        return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
     }
 }

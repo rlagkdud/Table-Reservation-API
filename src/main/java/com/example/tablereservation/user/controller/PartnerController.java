@@ -42,6 +42,7 @@ public class PartnerController {
 
     /**
      * 파트너(점주) 조회 - read
+     * - 없으면 exception 발생
      */
     @GetMapping("/api/partner/{id}")
     public ResponseEntity<?> getPartner(@PathVariable Long id){

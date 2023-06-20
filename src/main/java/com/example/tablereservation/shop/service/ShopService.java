@@ -2,6 +2,7 @@ package com.example.tablereservation.shop.service;
 
 import com.example.tablereservation.shop.entity.Shop;
 import com.example.tablereservation.shop.model.ShopAddInput;
+import com.example.tablereservation.shop.model.ShopResponse;
 import com.example.tablereservation.shop.repository.ShopRepository;
 import com.example.tablereservation.user.entity.Partner;
 import com.example.tablereservation.user.model.ServiceResult;
@@ -54,5 +55,26 @@ public class ShopService {
         shopRepository.save(shop);
         return ServiceResult.success();
 
+    }
+
+    /**
+     * 매장 조회
+     * @param id
+     * @return
+     */
+    public ServiceResult getShop(Long id) {
+        Optional<Shop> optionalShop = shopRepository.findById(id);
+        if(!optionalShop.isPresent()){
+            return ServiceResult.fail("등록된 매장이 없습니다.");
+        }
+        Shop shop = optionalShop.get();
+        ShopResponse shopResponse = ShopResponse.builder()
+                .name(shop.getName())
+                .location(shop.getLocation())
+                .description(shop.getDescription())
+                .partnerName(shop.getPartner().getUserName())
+                .partnerPhone(shop.getPartner().getPhone())
+                .build();
+        return ServiceResult.success(shopResponse);
     }
 }
