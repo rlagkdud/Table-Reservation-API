@@ -30,8 +30,6 @@ public class ServiceResult {
     }
 
     public static ServiceResult success() {
-        return ServiceResult.builder()
-                .result(true)
-                .build();
+        return success(null);
     }
 }

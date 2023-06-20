@@ -3,6 +3,7 @@ package com.example.tablereservation.shop.service;
 import com.example.tablereservation.shop.entity.Shop;
 import com.example.tablereservation.shop.model.ShopAddInput;
 import com.example.tablereservation.shop.model.ShopResponse;
+import com.example.tablereservation.shop.model.ShopUpdateInput;
 import com.example.tablereservation.shop.repository.ShopRepository;
 import com.example.tablereservation.user.entity.Partner;
 import com.example.tablereservation.user.model.ServiceResult;
@@ -10,6 +11,7 @@ import com.example.tablereservation.user.repository.PartnerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -76,5 +78,29 @@ public class ShopService {
                 .partnerPhone(shop.getPartner().getPhone())
                 .build();
         return ServiceResult.success(shopResponse);
+    }
+
+    /**
+     * 매장 정보 수정
+     * @param id
+     * @param shopUpdateInput
+     * @return
+     */
+    public ServiceResult updateShop(Long id, ShopUpdateInput shopUpdateInput) {
+        // 매장 존재여부
+        Optional<Shop> optionalShop = shopRepository.findById(id);
+        if(!optionalShop.isPresent()){
+            return ServiceResult.fail("해당 매장이 존재하지 않습니다.");
+        }
+
+        Shop shop = optionalShop.get();
+        shop.setName(shopUpdateInput.getName());
+        shop.setLocation(shopUpdateInput.getLocation());
+        shop.setDescription(shopUpdateInput.getDescription());
+        shop.setUpdateDate(LocalDateTime.now());
+        shopRepository.save(shop);
+
+        return ServiceResult.success();
+
     }
 }

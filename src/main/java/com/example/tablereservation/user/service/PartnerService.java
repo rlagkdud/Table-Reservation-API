@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -95,6 +96,7 @@ public class PartnerService {
 
         partner.setUserName(partnerUpdateInput.getUserName());
         partner.setPhone(partnerUpdateInput.getPhone());
+        partner.setUpdateDate(LocalDateTime.now());
         partnerRepository.save(partner);
         return ServiceResult.success();
     }
