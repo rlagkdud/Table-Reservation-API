@@ -73,4 +73,18 @@ public class ShopController {
         }
         return ResponseEntity.ok().body(ResponseMessage.success());
     }
+
+    /**
+     * 매장 삭제 - delete
+     */
+    @DeleteMapping("/api/shop/{id}")
+    public ResponseEntity<?> deleteShop(@PathVariable Long id){
+        ServiceResult result = shopService.deleteShop(id);
+
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+
+        }
+        return ResponseEntity.ok().body(ResponseMessage.success());
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.tablereservation.shop.service;
 
+import com.example.tablereservation.reservation.repository.ReservationRepository;
 import com.example.tablereservation.shop.entity.Shop;
 import com.example.tablereservation.shop.model.ShopAddInput;
 import com.example.tablereservation.shop.model.ShopResponse;
@@ -21,6 +22,8 @@ public class ShopService {
 
     private final ShopRepository shopRepository;
     private final PartnerRepository partnerRepository;
+
+    private final ReservationRepository reservationRepository;
 
 
     /**
@@ -102,5 +105,31 @@ public class ShopService {
 
         return ServiceResult.success();
 
+    }
+
+    /**
+     * 매장 삭제
+     * - 예약 존재하면 삭제 불가
+     * @param id
+     * @return
+     */
+    public ServiceResult deleteShop(Long id) {
+        // 메장 존재 여부
+        Optional<Shop> optionalShop = shopRepository.findById(id);
+        if(!optionalShop.isPresent()){
+            return ServiceResult.fail("해당 매장이 존재하지 않습니다.");
+        }
+
+        Shop shop = optionalShop.get();
+
+        // 예약 존재 여부
+        int count = reservationRepository.countByShop(shop);
+        if(count >0){
+            return ServiceResult.fail("삭제하려는 매장에 예약이 존재합니다.");
+        }
+
+        // 삭제
+        shopRepository.delete(shop);
+        return ServiceResult.success();
     }
 }
