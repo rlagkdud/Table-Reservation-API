@@ -19,7 +19,7 @@ public class PartnerAddInput {
     private String userName;
 
     @NotBlank(message = "점주 이메일은 필수 항목 입니다.")
-    @Email
+    @Email(message = "이메일 형식에 맞게 입력해주세요.")
     private String email;
 
     @NotBlank(message = "점주 전화번호는 필수 항목입니다.")
