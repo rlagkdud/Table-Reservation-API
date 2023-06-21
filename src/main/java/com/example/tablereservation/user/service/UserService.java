@@ -89,6 +89,7 @@ public class UserService {
         User user = optionalUser.get();
         user.setUserName(userUpdateInput.getUserName());
         user.setPhone(userUpdateInput.getPhone());
+        user.setUpdateDate(LocalDateTime.now());
         userRepository.save(user);
 
         return ServiceResult.success();
