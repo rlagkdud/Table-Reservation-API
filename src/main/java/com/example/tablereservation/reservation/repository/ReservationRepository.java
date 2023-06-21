@@ -6,6 +6,7 @@ import com.example.tablereservation.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -14,4 +15,5 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     List<Reservation> findAllByUser(User user);
 
+    int countByUserAndShopAndReserveDate(User user, Shop shop, LocalDateTime reserveDate);
 }
