@@ -87,4 +87,18 @@ public class ShopController {
         }
         return ResponseEntity.ok().body(ResponseMessage.success());
     }
+
+    /** 매장 검색
+     *
+     */
+    @GetMapping("/api/shop")
+    public ResponseEntity<?> searchShop(@RequestParam("keyword")String keyword){
+        ServiceResult result = shopService.searchShop(keyword);
+
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+        }
+
+        return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
+    }
 }

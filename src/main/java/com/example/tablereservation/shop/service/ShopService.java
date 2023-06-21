@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -131,5 +133,32 @@ public class ShopService {
         // 삭제
         shopRepository.delete(shop);
         return ServiceResult.success();
+    }
+
+    /**
+     * 매장 검색
+     * @param keyword
+     * @return
+     */
+    public ServiceResult searchShop(String keyword) {
+        List<Shop> shopList = shopRepository.findByNameContaining(keyword);
+
+        if(shopList.size() == 0){
+            return ServiceResult.fail("매장을 찾지 못했습니다.");
+        }
+
+        List<ShopResponse> shopResponseList = new ArrayList<>();
+        shopList.stream().forEach(s->{
+            shopResponseList.add(
+                    ShopResponse.builder()
+                            .name(s.getName())
+                            .location(s.getLocation())
+                            .description(s.getDescription())
+                            .partnerName(s.getPartner().getUserName())
+                            .partnerPhone(s.getPartner().getPhone())
+                            .build()
+            );
+        });
+        return ServiceResult.success(shopResponseList);
     }
 }

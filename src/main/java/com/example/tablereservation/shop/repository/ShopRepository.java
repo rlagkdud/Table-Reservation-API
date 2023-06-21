@@ -5,9 +5,13 @@ import com.example.tablereservation.user.entity.Partner;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ShopRepository extends JpaRepository<Shop, Long> {
     int countByPartner(Partner partner);
 
     int countByNameAndLocation(String name, String location);
+
+    List<Shop> findByNameContaining(String keyword);
 }
