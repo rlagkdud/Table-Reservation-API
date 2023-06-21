@@ -3,12 +3,14 @@ package com.example.tablereservation.user.service;
 import com.example.tablereservation.user.entity.User;
 import com.example.tablereservation.user.model.ServiceResult;
 import com.example.tablereservation.user.model.UserAddInput;
+import com.example.tablereservation.user.model.UserResponse;
 import com.example.tablereservation.user.repository.UserRepository;
 import com.example.tablereservation.utils.EncryptUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +18,12 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-
+    /**
+     * 사용자 추가
+     * - 이미 존재하는 이메일이면 가입 불가
+     * @param userAddInput
+     * @return
+     */
     public ServiceResult addUser(UserAddInput userAddInput) {
         // 등록여부확인
         int count = userRepository.countByEmail(userAddInput.getEmail());
@@ -36,5 +43,27 @@ public class UserService {
         userRepository.save(user);
 
         return ServiceResult.success();
+    }
+
+    /**
+     * 사용자 조회
+     * @param id
+     * @return
+     */
+    public ServiceResult getUser(Long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+
+        if(!optionalUser.isPresent()){
+            return ServiceResult.fail("해당 사용자가 없습니다.");
+        }
+
+        User user = optionalUser.get();
+        UserResponse userResponse = UserResponse.builder()
+                .userName(user.getUserName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .regDate(user.getRegDate())
+                .build();
+        return ServiceResult.success(userResponse);
     }
 }
