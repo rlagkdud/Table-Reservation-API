@@ -4,6 +4,7 @@ import com.example.tablereservation.user.entity.User;
 import com.example.tablereservation.user.model.ServiceResult;
 import com.example.tablereservation.user.model.UserAddInput;
 import com.example.tablereservation.user.model.UserResponse;
+import com.example.tablereservation.user.model.UserUpdateInput;
 import com.example.tablereservation.user.repository.UserRepository;
 import com.example.tablereservation.utils.EncryptUtils;
 import lombok.RequiredArgsConstructor;
@@ -65,5 +66,27 @@ public class UserService {
                 .regDate(user.getRegDate())
                 .build();
         return ServiceResult.success(userResponse);
+    }
+
+    /**
+     * 사용자 수정
+     * - 이름, 번호만
+     * @param userUpdateInput
+     * @return
+     */
+    public ServiceResult updateUser(Long id, UserUpdateInput userUpdateInput) {
+        // id에 해당하는 사용자 없을때,
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(!optionalUser.isPresent()){
+            return ServiceResult.fail("해당하는 사용자가 없습니다.");
+        }
+
+        // 있을때
+        User user = optionalUser.get();
+        user.setUserName(userUpdateInput.getUserName());
+        user.setPhone(userUpdateInput.getPhone());
+        userRepository.save(user);
+
+        return ServiceResult.success();
     }
 }
