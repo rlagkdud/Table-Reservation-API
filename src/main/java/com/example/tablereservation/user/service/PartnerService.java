@@ -8,6 +8,7 @@ import com.example.tablereservation.user.model.PartnerResponse;
 import com.example.tablereservation.user.model.PartnerUpdateInput;
 import com.example.tablereservation.user.model.ServiceResult;
 import com.example.tablereservation.user.repository.PartnerRepository;
+import com.example.tablereservation.utils.EncryptUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class PartnerService {
 
         // 정상 등록
         // 비밀번호 암호화
-        String encryptPassword = getEncryptPassword(partnerAddInput.getPassword());
+        String encryptPassword = EncryptUtils.getEncryptPassword(partnerAddInput.getPassword());
         // 저장
         Partner partner = Partner.builder()
                 .userName(partnerAddInput.getUserName())
@@ -50,11 +51,6 @@ public class PartnerService {
                 .build();
         partnerRepository.save(partner);
         return ServiceResult.success();
-    }
-
-    private String getEncryptPassword(String password) {
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-        return bCryptPasswordEncoder.encode(password);
     }
 
     /**
