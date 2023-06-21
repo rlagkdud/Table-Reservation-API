@@ -1,5 +1,7 @@
 package com.example.tablereservation.user.service;
 
+import com.example.tablereservation.reservation.entity.Reservation;
+import com.example.tablereservation.reservation.repository.ReservationRepository;
 import com.example.tablereservation.user.entity.User;
 import com.example.tablereservation.user.model.ServiceResult;
 import com.example.tablereservation.user.model.UserAddInput;
@@ -11,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,6 +21,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ReservationRepository reservationRepository;
 
     /**
      * 사용자 추가
@@ -87,6 +91,36 @@ public class UserService {
         user.setPhone(userUpdateInput.getPhone());
         userRepository.save(user);
 
+        return ServiceResult.success();
+    }
+
+    /**
+     * 사용자 삭제
+     * - 사용자가 한 예약까지 모두 삭제
+     * @param id
+     * @return
+     */
+    public ServiceResult deleteUser(Long id) {
+        // 사용자 존재 확인
+        Optional<User> optionalUser = userRepository.findById(id);
+        if(!optionalUser.isPresent()){
+            return ServiceResult.fail("해당하는 사용자가 없습니다.");
+        }
+
+        User user = optionalUser.get();
+
+        // 예약 존재 여부 확인
+        List<Reservation> reservationList = reservationRepository.findAllByUser(user);
+
+        // 예약 있으면 예약 삭제
+        if(reservationList.size() > 0){
+            reservationList.stream().forEach(r->{
+                reservationRepository.deleteById(r.getId());
+            });
+        }
+
+        // 사용자 삭제
+        userRepository.delete(user);
         return ServiceResult.success();
     }
 }

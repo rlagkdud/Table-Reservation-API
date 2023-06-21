@@ -71,4 +71,19 @@ public class UserController {
         return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
 
     }
+
+    /**
+     * 사용자 삭제 - delete
+     * - 예약이 있는 경우, 예약까지 함께 삭제
+     */
+    @DeleteMapping("/api/user/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable Long id){
+        ServiceResult result = userService.deleteUser(id);
+
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+        }
+        return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
+
+    }
 }
