@@ -1,5 +1,8 @@
 package com.example.tablereservation.user.service;
 
+import com.example.tablereservation.reservation.entity.Reservation;
+import com.example.tablereservation.reservation.repository.ReservationRepository;
+import com.example.tablereservation.shop.entity.Shop;
 import com.example.tablereservation.shop.repository.ShopRepository;
 import com.example.tablereservation.user.entity.Partner;
 import com.example.tablereservation.user.exception.PartnerNotFoundException;
@@ -10,11 +13,10 @@ import com.example.tablereservation.user.model.ServiceResult;
 import com.example.tablereservation.user.repository.PartnerRepository;
 import com.example.tablereservation.utils.EncryptUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,6 +24,8 @@ import java.util.Optional;
 public class PartnerService {
     private final PartnerRepository partnerRepository;
     private final ShopRepository shopRepository;
+
+    private final ReservationRepository reservationRepository;
 
 
     /**
@@ -123,4 +127,6 @@ public class PartnerService {
 
 
     }
+
+
 }

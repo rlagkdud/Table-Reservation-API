@@ -17,4 +17,6 @@ public interface ShopRepository extends JpaRepository<Shop, Long> {
     List<Shop> findByNameContaining(String keyword);
 
     Optional<Shop> findByNameAndLocation(String name, String location);
+
+    List<Shop> findAllByPartner(Partner partner);
 }

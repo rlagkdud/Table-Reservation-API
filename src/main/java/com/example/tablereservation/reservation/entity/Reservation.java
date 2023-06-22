@@ -32,7 +32,7 @@ public class Reservation {
     @JoinColumn
     private Shop shop;
 
-    private LocalDate reserveDate;
+    private LocalDateTime reserveDate;
     private LocalTime reserveTime;
 
     private LocalDateTime regDate;

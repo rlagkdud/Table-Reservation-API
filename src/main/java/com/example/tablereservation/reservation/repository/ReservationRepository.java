@@ -17,5 +17,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     List<Reservation> findAllByUser(User user);
 
-    int countByUserAndShopAndReserveDateAndReserveTime(User user, Shop shop, LocalDate reserveDate, LocalTime reserveTime);
+    int countByUserAndShopAndReserveDateAndReserveTime(User user, Shop shop, LocalDateTime reserveDate, LocalTime reserveTime);
+
+    List<Reservation> findAllByShopAndReserveDateOrderByReserveDate(Shop shop, LocalDateTime reserveDate);
 }

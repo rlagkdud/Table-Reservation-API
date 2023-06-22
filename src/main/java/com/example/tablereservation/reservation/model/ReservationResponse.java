@@ -18,6 +18,6 @@ public class ReservationResponse {
     private  String userPhone;
 
     private String shopName;
-    private LocalDate reserveDate;
+    private LocalDateTime reserveDate;
     private LocalTime reserveTime;
 }
