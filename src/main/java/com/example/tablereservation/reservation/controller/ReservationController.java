@@ -9,9 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -43,4 +41,20 @@ public class ReservationController {
         return ResponseEntity.ok().body(ResponseMessage.success());
 
     }
+
+    /**
+     * 예약 조회 - read
+     */
+    @GetMapping("/api/reservation/{id}")
+    public ResponseEntity<?> getReservation(@PathVariable Long id){
+
+        ServiceResult result = reservationService.getReservation(id);
+
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+        }
+        return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
+
+    }
+
 }

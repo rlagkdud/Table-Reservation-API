@@ -2,6 +2,7 @@ package com.example.tablereservation.reservation.service;
 
 import com.example.tablereservation.reservation.entity.Reservation;
 import com.example.tablereservation.reservation.model.ReservationAddInput;
+import com.example.tablereservation.reservation.model.ReservationResponse;
 import com.example.tablereservation.reservation.repository.ReservationRepository;
 import com.example.tablereservation.shop.entity.Shop;
 import com.example.tablereservation.shop.repository.ShopRepository;
@@ -32,13 +33,12 @@ public class ReservationService {
      * - 예약은 현재 년도의 예약만 받음
      * - 현재 시간 보다 이후의 예약만 받음
      * - 중복 예약 확인
-     *
      * @param reservationAddInput
      * @return
      */
     public ServiceResult addReservation(ReservationAddInput reservationAddInput) {
         // 사용자 존재 여부
-        Optional<User> optionalUser = userRepository.findByEmail(reservationAddInput.getUserEmail());
+        Optional<User> optionalUser = userRepository.findByPhone(reservationAddInput.getUserPhone());
         if (!optionalUser.isPresent()) {
             return ServiceResult.fail("해당 사용자가 존재하지 않습니다.");
         }
@@ -53,7 +53,7 @@ public class ReservationService {
 
         Shop shop = optionalShop.get();
 
-        // 예약날짜 유효성 여부
+        // 예약날짜 유효성 여부 - 해당 월에 있는 날짜인지, 현재보다 이후의 예약이 맞는지
         LocalDateTime now = LocalDateTime.now();
         int year = now.getYear();
 
@@ -93,6 +93,30 @@ public class ReservationService {
 
         return ServiceResult.success();
 
+    }
+
+    /**
+     * 예약 조회
+     * @param id
+     * @return
+     */
+    public ServiceResult getReservation(Long id) {
+        Optional<Reservation> optionalReservation = reservationRepository.findById(id);
+
+        if(!optionalReservation.isPresent()){
+            return ServiceResult.fail("예약이 존재하지 않습니다.");
+        }
+
+        Reservation reservation = optionalReservation.get();
+
+        ReservationResponse reservationResponse = ReservationResponse.builder()
+                .userName(reservation.getUser().getUserName())
+                .userPhone(reservation.getUser().getPhone())
+                .shopName(reservation.getShop().getName())
+                .reserveDate(reservation.getReserveDate())
+                .build();
+
+        return ServiceResult.success(reservationResponse);
     }
 }
 
