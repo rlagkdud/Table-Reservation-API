@@ -59,8 +59,9 @@ public class ReservationService {
 
         // 예약 월의 마지막 날짜
         Calendar cal = Calendar.getInstance();
-        int lastDayNum = cal.getActualMaximum(reservationAddInput.getMonth());
-
+        cal.set(year, reservationAddInput.getMonth(), 1);
+        int lastDayNum = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
+       
         // 입력받은 날짜 유효성 검사
         if (reservationAddInput.getDay() > lastDayNum) {
             return ServiceResult.fail("해당 월에 없는 날짜 입니다.");
@@ -118,5 +119,23 @@ public class ReservationService {
 
         return ServiceResult.success(reservationResponse);
     }
-}
 
+    /**
+     * 예약 삭제
+     * @param id
+     * @return
+     */
+    public ServiceResult deleteReservation(Long id) {
+        Optional<Reservation> optionalReservation = reservationRepository.findById(id);
+
+        if(!optionalReservation.isPresent()){
+            return ServiceResult.fail("예약이 존재하지 않습니다.");
+        }
+
+        Reservation reservation = optionalReservation.get();
+
+        reservationRepository.delete(reservation);
+
+        return ServiceResult.success();
+    }
+}

@@ -57,4 +57,19 @@ public class ReservationController {
 
     }
 
+    /**
+     * 예약 삭제 - delete
+     */
+    @DeleteMapping("/api/reservation/{id}")
+    public ResponseEntity<?> deleteReservation(@PathVariable Long id){
+
+        ServiceResult result = reservationService.deleteReservation(id);
+
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+        }
+        return ResponseEntity.ok().body(ResponseMessage.success());
+
+    }
+
 }
