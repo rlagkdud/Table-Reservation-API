@@ -9,7 +9,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
 @Data
@@ -30,8 +32,8 @@ public class Reservation {
     @JoinColumn
     private Shop shop;
 
-    private LocalDateTime reserveDate;
+    private LocalDate reserveDate;
+    private LocalTime reserveTime;
 
     private LocalDateTime regDate;
-    private LocalDateTime updateDate;
 }

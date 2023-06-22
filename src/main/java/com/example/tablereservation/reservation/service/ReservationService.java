@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
 import java.util.Calendar;
 import java.util.Optional;
@@ -61,33 +62,38 @@ public class ReservationService {
         Calendar cal = Calendar.getInstance();
         cal.set(year, reservationAddInput.getMonth(), 1);
         int lastDayNum = cal.getActualMaximum(Calendar.DAY_OF_MONTH);
-       
+
         // 입력받은 날짜 유효성 검사
         if (reservationAddInput.getDay() > lastDayNum) {
             return ServiceResult.fail("해당 월에 없는 날짜 입니다.");
         }
         // 현재보다 이후인지 확인
-        LocalDateTime reserveDate = LocalDateTime.of(
+        LocalDateTime reserveDateTime = LocalDateTime.of(
                 year
                 , reservationAddInput.getMonth()
                 , reservationAddInput.getDay()
                 , reservationAddInput.getTime()
                 , reservationAddInput.getMinute());
-        if (reserveDate.isBefore(now)) {
+        if (reserveDateTime.isBefore(now)) {
             return ServiceResult.fail("예약이 불가능한 지나간 시간 입니다.");
         }
 
+        LocalDate reserveDate = LocalDate.of(year,reservationAddInput.getMonth(), reservationAddInput.getDay());
+        LocalTime reserveTime = LocalTime.of(reservationAddInput.getTime(), reservationAddInput.getMinute(), 0);
+
         // 중복 예약 여부 - 동일한 사용자, 동일한 가게, 동일한 시간
-        int count = reservationRepository.countByUserAndShopAndReserveDate(user, shop, reserveDate);
+        int count = reservationRepository.countByUserAndShopAndReserveDateAndReserveTime(user, shop, reserveDate, reserveTime);
         if (count > 0) {
             return ServiceResult.fail("이미 동일한 예약이 존재합니다.");
         }
 
         // 정상 예약
+
         Reservation reservation = Reservation.builder()
                 .user(user)
                 .shop(shop)
                 .reserveDate(reserveDate)
+                .reserveTime(reserveTime)
                 .regDate(LocalDateTime.now())
                 .build();
         reservationRepository.save(reservation);
@@ -115,6 +121,7 @@ public class ReservationService {
                 .userPhone(reservation.getUser().getPhone())
                 .shopName(reservation.getShop().getName())
                 .reserveDate(reservation.getReserveDate())
+                .reserveTime(reservation.getReserveTime())
                 .build();
 
         return ServiceResult.success(reservationResponse);
