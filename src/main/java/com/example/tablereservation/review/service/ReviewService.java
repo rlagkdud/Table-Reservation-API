@@ -1,0 +1,96 @@
+package com.example.tablereservation.review.service;
+
+import com.example.tablereservation.reservation.entity.Reservation;
+import com.example.tablereservation.reservation.repository.ReservationRepository;
+import com.example.tablereservation.review.entity.Review;
+import com.example.tablereservation.review.model.ReviewAddInput;
+import com.example.tablereservation.review.repository.ReviewRepository;
+import com.example.tablereservation.shop.entity.Shop;
+import com.example.tablereservation.shop.repository.ShopRepository;
+import com.example.tablereservation.user.entity.User;
+import com.example.tablereservation.user.model.ServiceResult;
+import com.example.tablereservation.user.model.UserResponse;
+import com.example.tablereservation.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import javax.swing.text.html.Option;
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class ReviewService {
+    private final ReservationRepository reservationRepository;
+    private final UserRepository userRepository;
+    private  final ShopRepository shopRepository;
+
+    private final ReviewRepository reviewRepository;
+
+    /**
+     * 예약 이용 후 리뷰 등록
+     * - 예약 유무확인
+     * - 사용자 유무 확인
+     * - 가게 유무확인
+     * - 예약한 사용자가 맞는지 확인
+     * - 예약한 가게를 이용한게 맞는지 확인
+     * - 예약 도착 확인
+     * @param reservationId
+     * @param reviewAddInput
+     * @return
+     */
+    public ServiceResult addReview(Long reservationId, ReviewAddInput reviewAddInput) {
+
+        // 예약 유무 확인
+        Optional<Reservation> optionalReservation = reservationRepository.findById(reservationId);
+        if(!optionalReservation.isPresent()){
+            return ServiceResult.fail("해당 예약이 존재하지 않습니다.");
+        }
+
+        Reservation reservation = optionalReservation.get();
+
+        // 사용자 유무확인
+        Optional<User> optionalUser = userRepository.findByEmail(reviewAddInput.getUserEmail());
+        if(!optionalUser.isPresent()){
+            return ServiceResult.fail("해당 사용자가 존재하지 않습니다.");
+        }
+
+        User user = optionalUser.get();
+
+        // 가게 유무 확인
+        Optional<Shop> optionalShop = shopRepository.findByNameAndLocation(reviewAddInput.getShopName(), reviewAddInput.getShopLocation());
+        if(!optionalShop.isPresent()){
+            return ServiceResult.fail("해당 매장이 존재하지 않습니다.");
+        }
+
+        Shop shop = optionalShop.get();
+
+        // 예약자와 리뷰남길 사용자가 동일한지 확인
+        if(!reservation.getUser().getEmail().equals(user.getEmail())){
+            return ServiceResult.fail("사용자와 예약자가 다릅니다.");
+        }
+
+        // 예약가게와 리뷰 가계가 동일한지 확인
+        if(reservation.getShop().getId() != shop.getId()){
+            return ServiceResult.fail("리뷰를 남길 가게와 예약한 가게가 다릅니다.");
+        }
+
+        // 예약을 이용했는지 확인
+        if(!reservation.getArrivedYn().booleanValue() || reservation.getArrivedYn()== null){
+            return ServiceResult.fail("예약을 이용하지 않았습니다.");
+        }
+
+        // 리뷰 등록
+        Review review = Review.builder()
+                .description(reviewAddInput.getDescription())
+                .star(reviewAddInput.getStar())
+                .regDate(LocalDateTime.now())
+                .user(user)
+                .shop(shop)
+                .build();
+
+        reviewRepository.save(review);
+
+        return ServiceResult.success();
+    }
+}
