@@ -5,6 +5,7 @@ import com.example.tablereservation.reservation.repository.ReservationRepository
 import com.example.tablereservation.review.entity.Review;
 import com.example.tablereservation.review.model.ReviewAddInput;
 import com.example.tablereservation.review.model.ReviewResponse;
+import com.example.tablereservation.review.model.ReviewUpdateInput;
 import com.example.tablereservation.review.repository.ReviewRepository;
 import com.example.tablereservation.shop.entity.Shop;
 import com.example.tablereservation.shop.repository.ShopRepository;
@@ -154,6 +155,31 @@ public class ReviewService {
             );
         });
         return ServiceResult.success(reviewResponseList);
+
+    }
+
+    /**
+     * 리뷰 수정
+     * - 내용과 별점만 수정 가능
+     * @param id
+     * @return
+     */
+    public ServiceResult updateReview(Long id, ReviewUpdateInput reviewUpdateInput) {
+        // 리뷰 유무
+        Optional<Review> optionalReview = reviewRepository.findById(id);
+        if(!optionalReview.isPresent()){
+            return ServiceResult.fail("해당 리뷰가 존재하지 않습니다.");
+        }
+
+        Review review = optionalReview.get();
+
+        review.setDescription(reviewUpdateInput.getDescription());
+        review.setStar(reviewUpdateInput.getStar());
+        review.setUpdateDate(LocalDateTime.now());
+
+        reviewRepository.save(review);
+
+        return ServiceResult.success();
 
     }
 }
