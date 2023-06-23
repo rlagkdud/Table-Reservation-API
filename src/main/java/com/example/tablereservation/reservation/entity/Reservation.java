@@ -36,4 +36,6 @@ public class Reservation {
     private LocalTime reserveTime;
 
     private LocalDateTime regDate;
+
+    private Boolean arrivedYn = false;
 }

@@ -2,6 +2,7 @@ package com.example.tablereservation.reservation.controller;
 
 import com.example.tablereservation.reservation.model.DateInput;
 import com.example.tablereservation.reservation.model.ReservationAddInput;
+import com.example.tablereservation.reservation.model.UserCheckInput;
 import com.example.tablereservation.reservation.service.ReservationService;
 import com.example.tablereservation.user.model.ResponseError;
 import com.example.tablereservation.user.model.ResponseMessage;
@@ -99,9 +100,26 @@ public class ReservationController {
         return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
     }
 
-//    @ExceptionHandler(DateTimeException.class)
-//    public ResponseEntity<?> DateTimeExceptionHandler(DateTimeException e){
-//        return ResponseEntity.ok().body(ResponseMessage.fail(e.getMessage()));
-//    }
+
+    /**
+     * 도착 여부 확인 - PATCH
+     */
+    @PatchMapping("/api/reservation/{id}/arrive")
+    public ResponseEntity<?> checkArrive(@PathVariable Long id, @RequestBody @Valid UserCheckInput userCheckInput, Errors errors){
+
+        // 입력값 유효성 검사
+        if(errors.hasErrors()){
+            List<ResponseError> responseErrorList = ResponseError.of(errors.getAllErrors());
+            return new ResponseEntity(ResponseMessage.fail("입력값이 정확하지 않습니다", responseErrorList), HttpStatus.BAD_REQUEST);
+        }
+
+        ServiceResult result = reservationService.checkArrive(id, userCheckInput);
+
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+        }
+        return ResponseEntity.ok().body(ResponseMessage.success());
+
+    }
 
 }
