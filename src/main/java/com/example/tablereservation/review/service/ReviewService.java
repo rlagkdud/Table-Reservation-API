@@ -182,4 +182,22 @@ public class ReviewService {
         return ServiceResult.success();
 
     }
+
+    /**
+     * 리뷰 삭제
+     * @param id
+     * @return
+     */
+    public ServiceResult deleteReview(Long id) {
+        // 리뷰 존재 여부
+        Optional<Review> optionalReview = reviewRepository.findById(id);
+        if(!optionalReview.isPresent()){
+            return ServiceResult.fail("해당 리뷰가 존재하지 않습니다.");
+        }
+
+        Review review = optionalReview.get();
+
+        reviewRepository.delete(review);
+        return ServiceResult.success();
+    }
 }

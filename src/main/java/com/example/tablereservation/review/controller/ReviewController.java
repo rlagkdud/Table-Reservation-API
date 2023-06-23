@@ -91,4 +91,20 @@ public class ReviewController {
         return ResponseEntity.ok().body(ResponseMessage.success());
 
     }
+
+    /**
+     * 리뷰 삭제 - delete
+     */
+    @DeleteMapping("/api/review/{id}")
+    public ResponseEntity<?> deleteReview(@PathVariable Long id){
+
+        ServiceResult result = reviewService.deleteReview(id);
+
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+        }
+
+        return ResponseEntity.ok().body(ResponseMessage.success());
+
+    }
 }
