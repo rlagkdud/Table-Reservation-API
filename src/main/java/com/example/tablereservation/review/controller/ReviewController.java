@@ -54,4 +54,18 @@ public class ReviewController {
 
         return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
     }
+
+    /**
+     * 사용자가 작성한 모든 리뷰 조회 - read
+     */
+    @GetMapping("/api/review/user/{userId}")
+    public ResponseEntity<?> getReviewListByUser(@PathVariable Long userId){
+        ServiceResult result = reviewService.getReviewListByUser(userId);
+
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+        }
+
+        return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
+    }
 }

@@ -29,8 +29,10 @@ public class Review {
     private LocalDateTime updateDate;
 
     @ManyToOne
+    @JoinColumn
     private User user;
 
     @ManyToOne
+    @JoinColumn
     private Shop shop;
 }

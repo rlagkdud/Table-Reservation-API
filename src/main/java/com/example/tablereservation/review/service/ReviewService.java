@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -117,6 +119,41 @@ public class ReviewService {
                 .build();
 
         return ServiceResult.success(reviewResponse);
+
+    }
+
+    /**
+     * 사용자가 작성한 모든 리뷰 조회
+     * - 사용자 존재여부 확인
+     * @param userId
+     * @return
+     */
+    public ServiceResult getReviewListByUser(Long userId) {
+        // 사용자 존재 여부
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if(!optionalUser.isPresent()){
+            return ServiceResult.fail("해당 사용자가 존재하지 않습니다.");
+        }
+
+        User user = optionalUser.get();
+
+        // 사용자가 작성한 리뷰 목록 가져오기
+        List<Review> reviewList = reviewRepository.findAllByUser(user);
+        List<ReviewResponse> reviewResponseList = new ArrayList<>();
+
+        reviewList.stream().forEach(r->{
+            reviewResponseList.add(
+                    ReviewResponse.builder()
+                            .userEmail(r.getUser().getEmail())
+                            .description(r.getDescription())
+                            .star(r.getStar())
+                            .shopName(r.getShop().getName())
+                            .shopLocation(r.getShop().getLocation())
+                            .regDate(r.getRegDate())
+                            .build()
+            );
+        });
+        return ServiceResult.success(reviewResponseList);
 
     }
 }
