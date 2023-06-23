@@ -9,10 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -42,7 +39,19 @@ public class ReviewController {
         }
 
         return ResponseEntity.ok().body(ResponseMessage.success());
+    }
 
+    /**
+     * 리뷰 조회 - read
+     */
+    @GetMapping("/api/review/{id}")
+    public ResponseEntity<?> getReview(@PathVariable Long id){
+        ServiceResult result = reviewService.getReview(id);
 
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+        }
+
+        return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
     }
 }

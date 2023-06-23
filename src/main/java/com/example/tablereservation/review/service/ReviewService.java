@@ -4,17 +4,16 @@ import com.example.tablereservation.reservation.entity.Reservation;
 import com.example.tablereservation.reservation.repository.ReservationRepository;
 import com.example.tablereservation.review.entity.Review;
 import com.example.tablereservation.review.model.ReviewAddInput;
+import com.example.tablereservation.review.model.ReviewResponse;
 import com.example.tablereservation.review.repository.ReviewRepository;
 import com.example.tablereservation.shop.entity.Shop;
 import com.example.tablereservation.shop.repository.ShopRepository;
 import com.example.tablereservation.user.entity.User;
 import com.example.tablereservation.user.model.ServiceResult;
-import com.example.tablereservation.user.model.UserResponse;
 import com.example.tablereservation.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -92,5 +91,32 @@ public class ReviewService {
         reviewRepository.save(review);
 
         return ServiceResult.success();
+    }
+
+    /**
+     * 리뷰 조회
+     * @param id
+     * @return
+     */
+    public ServiceResult getReview(Long id) {
+        Optional<Review> optionalReview = reviewRepository.findById(id);
+
+        if(!optionalReview.isPresent()){
+            return ServiceResult.fail("해당 리뷰가 존재하지 않습니다.");
+        }
+
+        Review review = optionalReview.get();
+
+        ReviewResponse reviewResponse = ReviewResponse.builder()
+                .userEmail(review.getUser().getEmail())
+                .description(review.getDescription())
+                .star(review.getStar())
+                .shopName(review.getShop().getName())
+                .shopLocation(review.getShop().getLocation())
+                .regDate(review.getRegDate())
+                .build();
+
+        return ServiceResult.success(reviewResponse);
+
     }
 }
