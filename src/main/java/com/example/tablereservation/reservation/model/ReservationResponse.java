@@ -1,5 +1,6 @@
 package com.example.tablereservation.reservation.model;
 
+import com.example.tablereservation.reservation.type.ReservationStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -20,4 +21,6 @@ public class ReservationResponse {
     private String shopName;
     private LocalDateTime reserveDate;
     private LocalTime reserveTime;
+
+    private ReservationStatus status;
 }

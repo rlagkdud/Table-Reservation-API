@@ -1,11 +1,9 @@
 package com.example.tablereservation.reservation.service;
 
 import com.example.tablereservation.reservation.entity.Reservation;
-import com.example.tablereservation.reservation.model.DateInput;
-import com.example.tablereservation.reservation.model.ReservationAddInput;
-import com.example.tablereservation.reservation.model.ReservationResponse;
-import com.example.tablereservation.reservation.model.UserCheckInput;
+import com.example.tablereservation.reservation.model.*;
 import com.example.tablereservation.reservation.repository.ReservationRepository;
+import com.example.tablereservation.reservation.type.ReservationStatus;
 import com.example.tablereservation.shop.entity.Shop;
 import com.example.tablereservation.shop.repository.ShopRepository;
 import com.example.tablereservation.user.entity.Partner;
@@ -112,6 +110,8 @@ public class ReservationService {
                 .reserveDate(reserveDate)
                 .reserveTime(reserveTime)
                 .regDate(LocalDateTime.now())
+                .status(ReservationStatus.PENDING)
+                .arrivedYn(false)
                 .build();
         reservationRepository.save(reservation);
 
@@ -140,6 +140,7 @@ public class ReservationService {
                 .shopName(reservation.getShop().getName())
                 .reserveDate(reservation.getReserveDate())
                 .reserveTime(reservation.getReserveTime())
+                .status(reservation.getStatus())
                 .build();
 
         return ServiceResult.success(reservationResponse);
@@ -232,6 +233,11 @@ public class ReservationService {
 
     /**
      * 도착여부 확인
+     * - 예약 존재 여부
+     * - 예약이 존재한다면 승인된 예약인지 확인
+     * - 유저 존재 여부
+     * - 유저와 예약 매칭 확인
+     * - 예약 시간 이전에 도착했는지 여부(도착 못했을때, 너무 일찍 도착했을떄, 예약시간 10분 전 이내로 도착했을때)
      *
      * @param id
      * @return
@@ -244,6 +250,11 @@ public class ReservationService {
         }
 
         Reservation reservation = optionalReservation.get();
+
+        // 승인된 예약인지 확인
+        if(reservation.getStatus() == null || !reservation.getStatus().equals(ReservationStatus.ACCEPTED)){
+            return ServiceResult.fail("승인된 예약이 아닙니다.");
+        }
 
         // 유저 존재 여부
         Optional<User> optionalUser = userRepository.findByPhone(userCheckInput.getPhone());
@@ -289,5 +300,115 @@ public class ReservationService {
         reservation.setArrivedYn(true);
         reservationRepository.save(reservation);
         return ServiceResult.success();
+    }
+
+
+    /**
+     * 점주의 예약 승인 메소드(예약 상태 변경 메소드)
+     * - 예약 존재 여부
+     * - 점주 존재 여부
+     * - 예약 매장의 점주와 입력받은 점주 이메일 동일 여부
+     * @param id
+     * @return
+     */
+    public ServiceResult acceptReservationStatus(Long id, ReservationPartnerInput reservationPartnerInput) {
+
+        // 예약 존재 여부
+        Optional<Reservation> optionalReservation = reservationRepository.findById(id);
+        if(!optionalReservation.isPresent()){
+            return ServiceResult.fail("해당 예약이 존재하지 않습니다.");
+        }
+
+        Reservation reservation = optionalReservation.get();
+
+        // 점주 존재 여부
+        Optional<Partner> optionalPartner = partnerRepository.findByEmail(reservationPartnerInput.getEmail());
+        if(!optionalPartner.isPresent()){
+            return ServiceResult.fail("해당 점주가 존재하지 않습니다.");
+        }
+
+        Partner partner = optionalPartner.get();
+
+        // 예약매장 점주와 입력된 점주 이메일 일치 여부
+        if(!reservation.getShop().getPartner().getEmail().equals(partner.getEmail())){
+            return ServiceResult.fail("예약 매장 점주와 현재 점주가 일치하지 않습니다.");
+        }
+
+        // 정상 동작
+        // 예약 거절/대기중이면 -> 예약 승인
+        if(reservation.getStatus() == null
+                || reservation.getStatus() == ReservationStatus.DENIED
+                || reservation.getStatus() == ReservationStatus.PENDING){
+            reservation.setStatus(ReservationStatus.ACCEPTED);
+        }
+
+        ReservationResponse reservationResponse = ReservationResponse.builder()
+                .userName(reservation.getUser().getUserName())
+                .userPhone(reservation.getUser().getPhone())
+                .shopName(reservation.getShop().getName())
+                .reserveDate(reservation.getReserveDate())
+                .reserveTime(reservation.getReserveTime())
+                .status(reservation.getStatus())
+                .build();
+
+        reservationRepository.save(reservation);
+
+        return ServiceResult.success(reservationResponse);
+
+    }
+
+
+    /**
+     * 점주의 예약 거절 메소드(예약 상태 변경 메소드)
+     * - 예약 존재 여부
+     * - 점주 존재 여부
+     * - 예약 매장의 점주와 입력받은 점주 이메일 동일 여부
+     * @param id
+     * @return
+     */
+    public ServiceResult denyReservationStatus(Long id, ReservationPartnerInput reservationPartnerInput) {
+
+        // 예약 존재 여부
+        Optional<Reservation> optionalReservation = reservationRepository.findById(id);
+        if(!optionalReservation.isPresent()){
+            return ServiceResult.fail("해당 예약이 존재하지 않습니다.");
+        }
+
+        Reservation reservation = optionalReservation.get();
+
+        // 점주 존재 여부
+        Optional<Partner> optionalPartner = partnerRepository.findByEmail(reservationPartnerInput.getEmail());
+        if(!optionalPartner.isPresent()){
+            return ServiceResult.fail("해당 점주가 존재하지 않습니다.");
+        }
+
+        Partner partner = optionalPartner.get();
+
+        // 예약매장 점주와 입력된 점주 이메일 일치 여부
+        if(!reservation.getShop().getPartner().getEmail().equals(partner.getEmail())){
+            return ServiceResult.fail("예약 매장 점주와 현재 점주가 일치하지 않습니다.");
+        }
+
+        // 정상 동작
+        // 예약 확정/대기중이면 -> 예약 거절
+        if(reservation.getStatus() == null
+                || reservation.getStatus() == ReservationStatus.ACCEPTED
+                || reservation.getStatus() == ReservationStatus.PENDING){
+            reservation.setStatus(ReservationStatus.DENIED);
+        }
+
+        ReservationResponse reservationResponse = ReservationResponse.builder()
+                .userName(reservation.getUser().getUserName())
+                .userPhone(reservation.getUser().getPhone())
+                .shopName(reservation.getShop().getName())
+                .reserveDate(reservation.getReserveDate())
+                .reserveTime(reservation.getReserveTime())
+                .status(reservation.getStatus())
+                .build();
+
+        reservationRepository.save(reservation);
+
+        return ServiceResult.success(reservationResponse);
+
     }
 }

@@ -1,6 +1,7 @@
 package com.example.tablereservation.reservation.entity;
 
 
+import com.example.tablereservation.reservation.type.ReservationStatus;
 import com.example.tablereservation.shop.entity.Shop;
 import com.example.tablereservation.user.entity.User;
 import lombok.AllArgsConstructor;
@@ -38,4 +39,9 @@ public class Reservation {
     private LocalDateTime regDate;
 
     private Boolean arrivedYn = false;
+
+
+    @Enumerated(EnumType.STRING)
+    private ReservationStatus status = ReservationStatus.PENDING;
+
 }

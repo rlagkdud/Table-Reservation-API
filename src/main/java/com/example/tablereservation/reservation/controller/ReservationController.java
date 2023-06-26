@@ -2,6 +2,7 @@ package com.example.tablereservation.reservation.controller;
 
 import com.example.tablereservation.reservation.model.DateInput;
 import com.example.tablereservation.reservation.model.ReservationAddInput;
+import com.example.tablereservation.reservation.model.ReservationPartnerInput;
 import com.example.tablereservation.reservation.model.UserCheckInput;
 import com.example.tablereservation.reservation.service.ReservationService;
 import com.example.tablereservation.user.model.ResponseError;
@@ -119,6 +120,48 @@ public class ReservationController {
             return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
         }
         return ResponseEntity.ok().body(ResponseMessage.success());
+
+    }
+
+    /**
+     * 점장의 예약 승인 - PATCH
+     */
+    @PatchMapping("/api/reservation/{id}/accepted")
+    public ResponseEntity<?> acceptReservationStatus(@PathVariable Long id, @RequestBody @Valid ReservationPartnerInput reservationPartnerInput, Errors errors){
+
+        // 입력값 유효성 검사
+        if(errors.hasErrors()){
+            List<ResponseError> responseErrorList = ResponseError.of(errors.getAllErrors());
+            return new ResponseEntity(ResponseMessage.fail("입력값이 정확하지 않습니다", responseErrorList), HttpStatus.BAD_REQUEST);
+        }
+
+        ServiceResult result = reservationService.acceptReservationStatus(id, reservationPartnerInput);
+
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+        }
+        return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
+
+    }
+
+    /**
+     * 점장의 예약 거절 - PATCH
+     */
+    @PatchMapping("/api/reservation/{id}/denied")
+    public ResponseEntity<?> denyReservationStatus(@PathVariable Long id, @RequestBody @Valid ReservationPartnerInput reservationPartnerInput, Errors errors){
+
+        // 입력값 유효성 검사
+        if(errors.hasErrors()){
+            List<ResponseError> responseErrorList = ResponseError.of(errors.getAllErrors());
+            return new ResponseEntity(ResponseMessage.fail("입력값이 정확하지 않습니다", responseErrorList), HttpStatus.BAD_REQUEST);
+        }
+
+        ServiceResult result = reservationService.denyReservationStatus(id, reservationPartnerInput);
+
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+        }
+        return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
 
     }
 
