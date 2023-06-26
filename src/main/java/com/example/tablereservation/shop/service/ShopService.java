@@ -2,10 +2,7 @@ package com.example.tablereservation.shop.service;
 
 import com.example.tablereservation.reservation.repository.ReservationRepository;
 import com.example.tablereservation.shop.entity.Shop;
-import com.example.tablereservation.shop.model.ShopAddInput;
-import com.example.tablereservation.shop.model.ShopResponse;
-import com.example.tablereservation.shop.model.ShopResponseByStar;
-import com.example.tablereservation.shop.model.ShopUpdateInput;
+import com.example.tablereservation.shop.model.*;
 import com.example.tablereservation.shop.repository.CustomShopRepository;
 import com.example.tablereservation.shop.repository.ShopRepository;
 import com.example.tablereservation.user.entity.Partner;
@@ -51,7 +48,7 @@ public class ShopService {
 
         // 매장 중복 여부 확인
         int count = shopRepository.countByNameAndLocation(shopAddInput.getName(), shopAddInput.getLocation());
-        if (count > 0){
+        if (count > 0) {
             return ServiceResult.fail("이미 존재하는 매장입니다.");
         }
 
@@ -70,12 +67,13 @@ public class ShopService {
 
     /**
      * 매장 조회
+     *
      * @param id
      * @return
      */
     public ServiceResult getShop(Long id) {
         Optional<Shop> optionalShop = shopRepository.findById(id);
-        if(!optionalShop.isPresent()){
+        if (!optionalShop.isPresent()) {
             return ServiceResult.fail("등록된 매장이 없습니다.");
         }
         Shop shop = optionalShop.get();
@@ -91,6 +89,7 @@ public class ShopService {
 
     /**
      * 매장 정보 수정
+     *
      * @param id
      * @param shopUpdateInput
      * @return
@@ -98,7 +97,7 @@ public class ShopService {
     public ServiceResult updateShop(Long id, ShopUpdateInput shopUpdateInput) {
         // 매장 존재여부
         Optional<Shop> optionalShop = shopRepository.findById(id);
-        if(!optionalShop.isPresent()){
+        if (!optionalShop.isPresent()) {
             return ServiceResult.fail("해당 매장이 존재하지 않습니다.");
         }
 
@@ -116,13 +115,14 @@ public class ShopService {
     /**
      * 매장 삭제
      * - 예약 존재하면 삭제 불가
+     *
      * @param id
      * @return
      */
     public ServiceResult deleteShop(Long id) {
         // 메장 존재 여부
         Optional<Shop> optionalShop = shopRepository.findById(id);
-        if(!optionalShop.isPresent()){
+        if (!optionalShop.isPresent()) {
             return ServiceResult.fail("해당 매장이 존재하지 않습니다.");
         }
 
@@ -130,7 +130,7 @@ public class ShopService {
 
         // 예약 존재 여부
         int count = reservationRepository.countByShop(shop);
-        if(count >0){
+        if (count > 0) {
             return ServiceResult.fail("삭제하려는 매장에 예약이 존재합니다.");
         }
 
@@ -142,18 +142,19 @@ public class ShopService {
     /**
      * 매장 검색
      * - 검색어가 포함된 매장 찾기
+     *
      * @param keyword
      * @return
      */
     public ServiceResult searchShop(String keyword) {
         List<Shop> shopList = shopRepository.findByNameContaining(keyword);
 
-        if(shopList.size() == 0){
+        if (shopList.size() == 0) {
             return ServiceResult.fail("매장을 찾지 못했습니다.");
         }
 
         List<ShopResponse> shopResponseList = new ArrayList<>();
-        shopList.stream().forEach(s->{
+        shopList.stream().forEach(s -> {
             shopResponseList.add(
                     ShopResponse.builder()
                             .name(s.getName())
@@ -169,11 +170,37 @@ public class ShopService {
 
     /**
      * 별점순 매장 조회
+     *
      * @return
      */
     public ServiceResult getShopListOrderByStar() {
         List<ShopResponseByStar> list = customShopRepository.findAllShopAvgStar();
         return ServiceResult.success(list);
+
+    }
+
+
+    /**
+     * 가나다순 매장 조회
+     *
+     * @return
+     */
+    public ServiceResult getShopListOrderByName() {
+        List<Shop> shopList = shopRepository.findAllByOrderByNameAsc();
+        List<ShopResponseByName> shopResponseByNameList = new ArrayList<>();
+
+        shopList.stream().forEach(s -> {
+            shopResponseByNameList.add(
+                    ShopResponseByName.builder()
+                            .id(s.getId())
+                            .name(s.getName())
+                            .location(s.getLocation())
+                            .description(s.getDescription())
+                            .build()
+                    );
+        });
+
+        return ServiceResult.success(shopResponseByNameList);
 
     }
 }

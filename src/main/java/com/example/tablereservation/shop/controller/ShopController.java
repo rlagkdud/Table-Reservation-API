@@ -107,9 +107,20 @@ public class ShopController {
      */
     @GetMapping("/api/shop/orderBy/star")
     public ResponseEntity<?> getShopListOrderByStar(){
-        
+
         ServiceResult result = shopService.getShopListOrderByStar();
 
        return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
+    }
+
+    /**
+     * 가나다순 매장 조회 - GET
+     */
+    @GetMapping("/api/shop/orderBy/name")
+    public ResponseEntity<?> getShopListOrderByName(){
+
+        ServiceResult result = shopService.getShopListOrderByName();
+
+        return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
     }
 }

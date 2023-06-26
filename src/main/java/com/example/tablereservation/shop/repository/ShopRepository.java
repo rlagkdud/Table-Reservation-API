@@ -18,5 +18,6 @@ public interface ShopRepository extends JpaRepository<Shop, Long> {
 
     Optional<Shop> findByNameAndLocation(String name, String location);
 
-    List<Shop> findAllByPartner(Partner partner);
+    List<Shop> findAllByOrderByNameAsc();
+
 }
