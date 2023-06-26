@@ -88,8 +88,8 @@ public class ShopController {
         return ResponseEntity.ok().body(ResponseMessage.success());
     }
 
-    /** 매장 검색
-     *
+    /**
+     * 매장 검색 - GET
      */
     @GetMapping("/api/shop")
     public ResponseEntity<?> searchShop(@RequestParam("keyword")String keyword){
@@ -100,5 +100,16 @@ public class ShopController {
         }
 
         return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
+    }
+
+    /**
+     * 별점순 매장 조회 - GET
+     */
+    @GetMapping("/api/shop/orderBy/star")
+    public ResponseEntity<?> getShopListOrderByStar(){
+        
+        ServiceResult result = shopService.getShopListOrderByStar();
+
+       return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
     }
 }

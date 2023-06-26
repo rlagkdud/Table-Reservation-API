@@ -4,7 +4,9 @@ import com.example.tablereservation.reservation.repository.ReservationRepository
 import com.example.tablereservation.shop.entity.Shop;
 import com.example.tablereservation.shop.model.ShopAddInput;
 import com.example.tablereservation.shop.model.ShopResponse;
+import com.example.tablereservation.shop.model.ShopResponseByStar;
 import com.example.tablereservation.shop.model.ShopUpdateInput;
+import com.example.tablereservation.shop.repository.CustomShopRepository;
 import com.example.tablereservation.shop.repository.ShopRepository;
 import com.example.tablereservation.user.entity.Partner;
 import com.example.tablereservation.user.model.ServiceResult;
@@ -26,6 +28,8 @@ public class ShopService {
     private final PartnerRepository partnerRepository;
 
     private final ReservationRepository reservationRepository;
+
+    private final CustomShopRepository customShopRepository;
 
 
     /**
@@ -137,6 +141,7 @@ public class ShopService {
 
     /**
      * 매장 검색
+     * - 검색어가 포함된 매장 찾기
      * @param keyword
      * @return
      */
@@ -160,5 +165,15 @@ public class ShopService {
             );
         });
         return ServiceResult.success(shopResponseList);
+    }
+
+    /**
+     * 별점순 매장 조회
+     * @return
+     */
+    public ServiceResult getShopListOrderByStar() {
+        List<ShopResponseByStar> list = customShopRepository.findAllShopAvgStar();
+        return ServiceResult.success(list);
+
     }
 }
