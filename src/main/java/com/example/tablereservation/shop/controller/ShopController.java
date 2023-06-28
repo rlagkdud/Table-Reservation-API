@@ -1,5 +1,6 @@
 package com.example.tablereservation.shop.controller;
 
+import com.example.tablereservation.shop.model.CurrentPoint;
 import com.example.tablereservation.shop.model.ShopAddInput;
 import com.example.tablereservation.shop.model.ShopUpdateInput;
 import com.example.tablereservation.shop.service.ShopService;
@@ -121,6 +122,21 @@ public class ShopController {
 
         ServiceResult result = shopService.getShopListOrderByName();
 
+        return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
+    }
+
+    /**
+     * 거리순 매장 조회 - GET
+     */
+    @GetMapping("/api/shop/orderBy/distance")
+    public ResponseEntity<?> getShopListOrderByDistance(@RequestBody @Valid CurrentPoint currentPoint, Errors errors){
+        // 입력값에 대한 유효성 검사
+        if(errors.hasErrors()){
+            List<ResponseError> responseErrorList = ResponseError.of(errors.getAllErrors());
+            return new ResponseEntity<>(ResponseMessage.fail("입력값이 정확하지 않습니다.", responseErrorList), HttpStatus.BAD_REQUEST);
+        }
+
+        ServiceResult result = shopService.getShopListOrderByDistance(currentPoint);
         return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
     }
 }

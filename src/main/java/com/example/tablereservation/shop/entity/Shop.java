@@ -31,4 +31,7 @@ public class Shop {
     @JoinColumn
     private Partner partner;
 
+    private Double longitude;
+    private Double latitude;
+
 }

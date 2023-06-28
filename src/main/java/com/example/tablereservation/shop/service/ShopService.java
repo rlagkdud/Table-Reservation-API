@@ -58,6 +58,8 @@ public class ShopService {
                 .description(shopAddInput.getDescription())
                 .regDate(LocalDateTime.now())
                 .partner(partner)
+                .longitude(shopAddInput.getLongitude())
+                .latitude(shopAddInput.getLatitude())
                 .build();
 
         shopRepository.save(shop);
@@ -202,5 +204,17 @@ public class ShopService {
 
         return ServiceResult.success(shopResponseByNameList);
 
+    }
+
+    /**
+     * 거리순 매장 조회
+     *
+     * @param currentPoint
+     * @return
+     */
+    public ServiceResult getShopListOrderByDistance(CurrentPoint currentPoint) {
+        List<ShopResponseByDistance> list = customShopRepository.findAllShopDistance(currentPoint);
+
+        return ServiceResult.success(list);
     }
 }
