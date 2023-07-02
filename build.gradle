@@ -36,6 +36,9 @@ dependencies {
 	// https://mvnrepository.com/artifact/ch.simas.qlrm/qlrm
 	implementation group: 'ch.simas.qlrm', name: 'qlrm', version: '1.7.1'
 
+	// https://mvnrepository.com/artifact/com.auth0/java-jwt
+	implementation group: 'com.auth0', name: 'java-jwt', version: '3.13.0'
+
 
 	compileOnly 'org.projectlombok:lombok'
 
