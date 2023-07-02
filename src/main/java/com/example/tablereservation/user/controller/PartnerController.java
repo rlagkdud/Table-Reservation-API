@@ -94,5 +94,26 @@ public class PartnerController {
 
     }
 
+    /**
+     * 파트너(점주) 인증(로그인)
+     */
+    @PostMapping("/api/partner/login")
+    public ResponseEntity<?> createToken(@RequestBody @Valid UserLogin userLogin, Errors errors) {
+
+        // 입력값 유효성 검사
+        if (errors.hasErrors()) {
+            List<ResponseError> responseErrorList = ResponseError.of(errors.getAllErrors());
+            return new ResponseEntity(ResponseMessage.fail("입력값이 정확하지 않습니다", responseErrorList), HttpStatus.BAD_REQUEST);
+        }
+
+        ServiceResult result = partnerService.login(userLogin);
+
+        if(!result.isResult()){
+            return ResponseEntity.ok().body(ResponseMessage.fail(result.getMessage()));
+        }
+        return ResponseEntity.ok().body(ResponseMessage.success(result.getData()));
+
+    }
+
 
 }

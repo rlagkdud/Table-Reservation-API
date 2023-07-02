@@ -1,21 +1,23 @@
 package com.example.tablereservation.user.service;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.example.tablereservation.reservation.entity.Reservation;
 import com.example.tablereservation.reservation.repository.ReservationRepository;
 import com.example.tablereservation.shop.entity.Shop;
 import com.example.tablereservation.shop.repository.ShopRepository;
 import com.example.tablereservation.user.entity.Partner;
+import com.example.tablereservation.user.entity.User;
 import com.example.tablereservation.user.exception.PartnerNotFoundException;
-import com.example.tablereservation.user.model.PartnerAddInput;
-import com.example.tablereservation.user.model.PartnerResponse;
-import com.example.tablereservation.user.model.PartnerUpdateInput;
-import com.example.tablereservation.user.model.ServiceResult;
+import com.example.tablereservation.user.model.*;
 import com.example.tablereservation.user.repository.PartnerRepository;
 import com.example.tablereservation.utils.EncryptUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -126,6 +128,50 @@ public class PartnerService {
         return ServiceResult.success();
 
 
+    }
+
+    /**
+     * @param userLogin
+     * 사용자 이메일과 비밀번호를 통해 JWT를 발행하는 API
+     * - JWT 토큰 발생시 사용자 정보가 유효하지 않을때 예외 발생
+     * - 사용자 정보가 존재 여부
+     * - 비밀번호 일치 여부
+     * - 토큰 발행!!!!
+     * - 토큰 유효기간 설정
+     * @return
+     */
+    public ServiceResult login(UserLogin userLogin) {
+
+        // 점주 정보가 존재하는지 확인
+        Optional<Partner> optionalPartner = partnerRepository.findByEmail(userLogin.getEmail());
+
+        if(!optionalPartner.isPresent()){
+            return ServiceResult.fail("사용자가 존재하지 않습니다.");
+        }
+        Partner partner = optionalPartner.get();
+
+        // 비밀번호 일치여부 확인
+        // password 비교하는 util을 만들어 사용
+        if (!EncryptUtils.equalPassword(userLogin.getPassword(), partner.getPassword())) {
+            return ServiceResult.fail("비밀번호가 일치하지 않습니다.");
+        }
+
+        // 토큰 만료 시간 설정
+        LocalDateTime expiredDateTime = LocalDateTime.now().plusMonths(1);
+        Date expiredDate = Timestamp.valueOf(expiredDateTime);
+
+        // 토큰 발행 시점
+        String token = JWT.create()
+                .withExpiresAt(expiredDate)
+                .withClaim("partner_id", partner.getId())
+                .withSubject(partner.getUserName())
+                .withIssuer(partner.getEmail())
+                .sign(Algorithm.HMAC512("fastcampus".getBytes()));
+
+        // 모델에 담아서 반환
+        return ServiceResult.success(UserLoginToken.builder()
+                .token(token)
+                .build());
     }
 
 
